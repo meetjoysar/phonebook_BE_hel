@@ -5,4 +5,4 @@ node_modules
 access.log
 notes.txt
 *.md
-
+.env
