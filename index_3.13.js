@@ -3,10 +3,19 @@ const morgan = require('morgan')
 const mongoose = require('mongoose')
 require('dotenv').config()
 const Person = require("./models/phonebook")
+// const fs = require('fs')
+// const path = require('path')
+// const cors = require('cors')
 
 const app = express()
+// app.use(cors())
 
 app.use(express.static('dist'))
+
+// const accessLogStream = fs.createWriteStream(
+//     path.join(__dirname, 'access.log'), 
+//     { flags: 'a' }  // 'a' means append
+// )
 
 morgan.token('body', (req) => {
     return JSON.stringify(req.body)
@@ -15,6 +24,29 @@ morgan.token('body', (req) => {
 app.use(express.json())
 // app.use(morgan('tiny', { stream: accessLogStream }))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
+// let phonebook = [
+//     { 
+//       "id": "1",
+//       "name": "Arto Hellas", 
+//       "number": "040-123456"
+//     },
+//     { 
+//       "id": "2",
+//       "name": "Ada Lovelace", 
+//       "number": "39-44-5323523"
+//     },
+//     { 
+//       "id": "3",
+//       "name": "Dan Abramov", 
+//       "number": "12-43-234345"
+//     },
+//     { 
+//       "id": "4",
+//       "name": "Mary Poppendieck", 
+//       "number": "39-23-6423122"
+//     }
+// ]
 
 app.get('/info', (req, res) => {
     let currentdate = new Date()
@@ -33,9 +65,12 @@ app.get('/api/persons', (req, res) => {
 
 app.get('/api/persons/:id', (req, res) => {
     const id = req.params.id
-    Person.findById(id).then(person => {
+    const person = phonebook.find(p => p.id === id)
+    if (person){
         res.json(person)
-    })
+    } else {
+        res.status(404).end("Invalid!")
+    }
 })
 
 const generateId = () =>{
@@ -46,28 +81,38 @@ const generateId = () =>{
 }
 
 app.post('/api/persons', (req, res) => {
-    let name_2put = req.body.name
-    let number_2put = req.body.number
+    let name = req.body.name
+    let number = req.body.number
 
-    if (!name_2put) {
+    if (!name) {
         return res.status(400).json({
             error: "name-missing"
         })
     }
-    else if (!number_2put){
+    else if (!number){
         return res.status(400).json({
             error: "number-missing"
         })
     }
+    //could have used .some() instaed of this compelx logic
+    let alreadyPresent = phonebook.map(p => p.name.split(' ').join('').toLowerCase()).includes(name.split(' ').join('').toLowerCase())
+    console.log(alreadyPresent);
 
-    const person = new Person({
-        name: name_2put,
-        number: number_2put
-    })
+    if (alreadyPresent) {
+        return res.status(409).json({
+            error: "already present"
+        })
+    }
 
-    person.save().then(savedPerson => {
-        res.json(savedPerson)
-    })
+    let person = {
+        id: generateId(),
+        name: name,
+        number: number
+    }
+
+    phonebook = phonebook.concat(person)
+
+    res.json(person)
 })
 
 app.delete('/api/persons/:id', (req, res) => {
