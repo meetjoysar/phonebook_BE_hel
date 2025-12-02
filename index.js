@@ -3,7 +3,6 @@ const morgan = require('morgan')
 // const mongoose = require('mongoose')
 require('dotenv').config()
 const Person = require("./models/phonebook")
-const e = require('express')
 
 const app = express()
 
@@ -40,7 +39,7 @@ app.get('/api/persons', (req, res) => {
     })
 })
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
     const id = req.params.id
     Person.findById(id).then(person => {
         res.json(person)
@@ -73,13 +72,13 @@ app.post('/api/persons', (req, res) => {
     })
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     // const id = req.params.id
     // phonebook = phonebook.filter(person => person.id !== id)
-
     // res.status(204).end()
     Person.findByIdAndDelete(req.params.id).then(result => {
-        res.status(204).end()
+        // console.log(result.name);
+        res.json(result)
     }).catch(err => next(err))
 })
 
