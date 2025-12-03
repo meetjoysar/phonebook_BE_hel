@@ -1,5 +1,6 @@
-//starting with ex 3.17 from here
 const express = require('express')
+const morgan = require('morgan')
+// const mongoose = require('mongoose')
 require('dotenv').config()
 const Person = require("./models/phonebook")
 
@@ -7,8 +8,13 @@ const app = express()
 
 app.use(express.static('dist'))
 
-app.use(express.json())
+// morgan.token('body', (req) => {
+//     return JSON.stringify(req.body)
+// })
 
+app.use(express.json())
+// app.use(morgan('tiny', { stream: accessLogStream }))
+// app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 const requestLogger = (request, response, next) => {
   console.log('Method:', request.method)
   console.log('Path:  ', request.path)
@@ -67,7 +73,11 @@ app.post('/api/persons', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
+    // const id = req.params.id
+    // phonebook = phonebook.filter(person => person.id !== id)
+    // res.status(204).end()
     Person.findByIdAndDelete(req.params.id).then(result => {
+        // console.log(result.name);
         res.json(result)
     }).catch(err => next(err))
 })
