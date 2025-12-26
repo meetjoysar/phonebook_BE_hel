@@ -70,7 +70,7 @@ app.put('/api/persons/:id', (req, res, next) => {
     let id_2put = req.params.id
     let num_2put = req.body.number
     Person.findByIdAndUpdate(id_2put, { number: String(num_2put) }, { new: true}).then(results => {
-        // console.log(results);
+        // always do this to comple the hanging request
         res.json(results)
     }).catch(err => next(err))
 })
