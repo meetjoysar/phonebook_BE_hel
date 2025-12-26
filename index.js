@@ -42,28 +42,37 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 
 app.post('/api/persons', (req, res) => {
-    let name_2put = req.body.name
-    let number_2put = req.body.number
+    let name_2post = req.body.name
+    let number_2post = req.body.number
 
-    if (!name_2put) {
+    if (!name_2post) {
         return res.status(400).json({
             error: "name-missing"
         })
     }
-    else if (!number_2put){
+    else if (!number_2post){
         return res.status(400).json({
             error: "number-missing"
         })
     }
 
-    const person = new Person({
-        name: name_2put,
-        number: number_2put
+    const newperson = new Person({
+        name: name_2post,
+        number: number_2post
     })
 
-    person.save().then(savedPerson => {
+    newperson.save().then(savedPerson => {
         res.json(savedPerson)
     })
+})
+
+app.put('/api/persons/:id', (req, res, next) => {
+    let id_2put = req.params.id
+    let num_2put = req.body.number
+    Person.findByIdAndUpdate(id_2put, { number: String(num_2put) }, { new: true}).then(results => {
+        // console.log(results);
+        res.json(results)
+    }).catch(err => next(err))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
