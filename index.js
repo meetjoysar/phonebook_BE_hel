@@ -1,7 +1,7 @@
 //starting with ex 3.17 from here
 const express = require('express')
 require('dotenv').config()
-const Person = require("./models/phonebook")
+const Person = require('./models/phonebook')
 
 const app = express()
 
@@ -10,11 +10,11 @@ app.use(express.static('dist'))
 app.use(express.json())
 
 const requestLogger = (request, response, next) => {
-  console.log('Method:', request.method)
-  console.log('Path:  ', request.path)
-  console.log('Body:  ', request.body)
-  console.log('----------------------')
-  next()
+    console.log('Method:', request.method)
+    console.log('Path:  ', request.path)
+    console.log('Body:  ', request.body)
+    console.log('----------------------')
+    next()
 }
 app.use(requestLogger)
 
@@ -47,12 +47,12 @@ app.post('/api/persons', (req, res, next) => {
 
     if (!name_2post) {
         return res.status(400).json({
-            error: "name-missing"
+            error: 'name-missing'
         })
     }
     else if (!number_2post){
         return res.status(400).json({
-            error: "number-missing"
+            error: 'number-missing'
         })
     }
 
@@ -70,7 +70,7 @@ app.put('/api/persons/:id', (req, res, next) => {
     let id_2put = req.params.id
     let name_2put = req.body.name
     let num_2put = req.body.number
-    Person.findByIdAndUpdate(id_2put, { name: String(name_2put), number: String(num_2put) }, { new: true, runValidators: true}).then(results => {
+    Person.findByIdAndUpdate(id_2put, { name: String(name_2put), number: String(num_2put) }, { new: true, runValidators: true }).then(results => {
         // always do this to comple the hanging request
         res.json(results)
     }).catch(err => next(err))
@@ -83,17 +83,17 @@ app.delete('/api/persons/:id', (req, res, next) => {
 })
 
 const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: 'unknown endpoint' })
+    res.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-    console.log(error.message);
+    console.log(error.message)
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformated id' })
     } else if (error.name === 'ValidationError') {
-        return response.status(400).json({ error: error.message})
+        return response.status(400).json({ error: error.message })
     }
     next(error)
 }
@@ -102,5 +102,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`)
 })
