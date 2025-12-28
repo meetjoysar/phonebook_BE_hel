@@ -41,7 +41,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 })
 
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     let name_2post = req.body.name
     let number_2post = req.body.number
 
@@ -63,13 +63,14 @@ app.post('/api/persons', (req, res) => {
 
     newperson.save().then(savedPerson => {
         res.json(savedPerson)
-    })
+    }).catch(err => next(err))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
     let id_2put = req.params.id
+    let name_2put = req.body.name
     let num_2put = req.body.number
-    Person.findByIdAndUpdate(id_2put, { number: String(num_2put) }, { new: true}).then(results => {
+    Person.findByIdAndUpdate(id_2put, { name: String(name_2put), number: String(num_2put) }, { new: true, runValidators: true}).then(results => {
         // always do this to comple the hanging request
         res.json(results)
     }).catch(err => next(err))
@@ -91,6 +92,8 @@ const errorHandler = (error, request, response, next) => {
     console.log(error.message);
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformated id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message})
     }
     next(error)
 }
